@@ -40,7 +40,7 @@ class GoogleMaps:
         time.sleep(3)
 
     def scroll(self):
-        for r in range(1, 3):
+        for r in range(1, 30):
             print(r)
             self.Driver.find_element(By.CLASS_NAME, "hfpxzc").send_keys(Keys.PAGE_DOWN)
             time.sleep(2)

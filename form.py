@@ -7,11 +7,10 @@ from openpyxl import Workbook
 import datetime
 
 date = datetime.datetime.now().strftime("%d-%m-%Y")
-driver_path = r"D:\Google-maps-Contact-Details\Driver\chromedriver_win32\chromedriver.exe"
+
 web_url = r"https://www.google.com/maps"
 extension = ".xlsx"
-location_save = r"D:\Google-maps-Contact-Details\Excel\Save\ "
-driver = webdriver.Chrome(executable_path=driver_path)
+
 
 wb = Workbook()
 ws = wb.active
@@ -19,26 +18,31 @@ ws = wb.active
 
 class GoogleMaps:
 
-    def __init__(self,Title,Location):
+    def __init__(self,Title,Location,Driver_Path,Save_Excel):
         self.Title = Title
         self.Location = Location
-
+        self.Driver = webdriver.Chrome(executable_path=Driver_Path) 
+        self.Location_save = Save_Excel
+        
+      
 
     def browser_run(self):
-        driver.get(web_url)
+        self.Driver.get(web_url)
+        # driver.get(web_url)
+        
 
     def input_fields(self,  **kwargs):
-        driver.find_element(By.ID, "searchboxinput").send_keys(kwargs.get("find"))
+        self.Driver.find_element(By.ID, "searchboxinput").send_keys(kwargs.get("find"))
         time.sleep(3)
 
     def input_fields_post(self):
-        driver.find_element(By.ID, "searchbox-searchbutton").click()
+        self.Driver.find_element(By.ID, "searchbox-searchbutton").click()
         time.sleep(3)
 
     def scroll(self):
         for r in range(1, 3):
             print(r)
-            driver.find_element(By.CLASS_NAME, "hfpxzc").send_keys(Keys.PAGE_DOWN)
+            self.Driver.find_element(By.CLASS_NAME, "hfpxzc").send_keys(Keys.PAGE_DOWN)
             time.sleep(2)
 
     def excel_title(self):
@@ -49,14 +53,14 @@ class GoogleMaps:
         ws.cell(row=1,column=5).value = "Phone"
 
     def get_link(self, r=2):
-        for link in driver.find_elements(By.CLASS_NAME, "hfpxzc"):
+        for link in self.Driver.find_elements(By.CLASS_NAME, "hfpxzc"):
             print(link.get_attribute("href"))
             ws.cell(row=r, column=1).value = link.get_attribute("href")
             r = r + 1
         self.save_excel(title=self.Title + " in " + self.Location  +" data ")
 
     def save_excel(self,**kwargs):
-        wb.save(location_save[:-1] +  kwargs.get("title") + date + extension)
+        wb.save(self.Location_save[:-1] +  kwargs.get("title") + date + extension)
 
 
     def search_text(self):
@@ -71,13 +75,13 @@ class GoogleMaps:
         self.get_data()
 
     def get_phone(self):
-        for ph in driver.find_elements(By.TAG_NAME, "button"):
+        for ph in self.Driver.find_elements(By.TAG_NAME, "button"):
             if len(ph.text) == 12:
                 return ph.text
 
     def element(self,**kwargs):
         try:
-            name = driver.find_element(kwargs.get("by"), kwargs.get("value")).text
+            name = self.Driver.find_element(kwargs.get("by"), kwargs.get("value")).text
             self.element_print(heading=kwargs.get("heading"), value=name)
             return name
         except:
@@ -91,7 +95,7 @@ class GoogleMaps:
             print(r)
 
             if ws.cell(row=r, column=1).value:
-                driver.get(ws.cell(row=r, column=1).value)
+                self.Driver.get(ws.cell(row=r, column=1).value)
                 name = self.element(heading="Name", by=By.TAG_NAME, value="h1")
                 address = self.element(heading="Address", by=By.CLASS_NAME, value="Io6YTe")
                 website = self.element(heading="Website", by=By.CLASS_NAME, value="ITvuef")
@@ -106,7 +110,7 @@ class GoogleMaps:
 
 
     def get_data(self):
-        print(location_save[:-1] +  self.Title + " in " + self.Location  +" data " + date + extension)
+        print(self.Location_save[:-1] +  self.Title + " in " + self.Location  +" data " + date + extension)
         self.maps_data_range()
         self.save_excel(title=self.Title + " in " + self.Location  +" data_details ")
 

@@ -1,5 +1,6 @@
 import form
 
-gm = form.GoogleMaps()
+gm = form.GoogleMaps(Title="Manpower Consultants",Location="Tamilnadu")
 
-gm.search_text(searchText="Used appliances Dealers", Location="Karnataka")
+gm.search_text()
+# Manpower Consultants Nepal

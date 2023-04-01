@@ -3,13 +3,14 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from openpyxl import Workbook,load_workbook
+from openpyxl import Workbook
 import datetime
+
 date = datetime.datetime.now().strftime("%d-%m-%Y")
-driver_path = r"E:\Python project\Google maps contact details\Driver\chromedriver_win32\chromedriver.exe"
+driver_path = r"D:\Google-maps-Contact-Details\Driver\chromedriver_win32\chromedriver.exe"
 web_url = r"https://www.google.com/maps"
 extension = ".xlsx"
-location_save = r"E:\Python project\Google maps contact details\Excel"
+location_save = r"D:\Google-maps-Contact-Details\Excel\Save\ "
 driver = webdriver.Chrome(executable_path=driver_path)
 
 wb = Workbook()
@@ -17,6 +18,12 @@ ws = wb.active
 
 
 class GoogleMaps:
+
+    def __init__(self,Title,Location):
+        self.Title = Title
+        self.Location = Location
+
+
     def browser_run(self):
         driver.get(web_url)
 
@@ -34,24 +41,31 @@ class GoogleMaps:
             driver.find_element(By.CLASS_NAME, "hfpxzc").send_keys(Keys.PAGE_DOWN)
             time.sleep(2)
 
+    def excel_title(self):
+        ws.cell(row=1,column=1).value = "Link"
+        ws.cell(row=1,column=2).value = "Name"
+        ws.cell(row=1,column=3).value = "Address"
+        ws.cell(row=1,column=4).value = "Website"
+        ws.cell(row=1,column=5).value = "Phone"
+
     def get_link(self, r=2):
         for link in driver.find_elements(By.CLASS_NAME, "hfpxzc"):
             print(link.get_attribute("href"))
             ws.cell(row=r, column=1).value = link.get_attribute("href")
             r = r + 1
-        self.save_excel(title="\data ")
+        self.save_excel(title=self.Title + " in " + self.Location  +" data ")
 
     def save_excel(self,**kwargs):
-        wb.save(location_save + kwargs.get("title") + date + extension)
+        wb.save(location_save[:-1] +  kwargs.get("title") + date + extension)
 
 
-    def search_text(self, **kwargs):
-        print(kwargs.get("searchText"), "in", kwargs.get("Location"))
-        findtext = kwargs.get("searchText"), " in ", kwargs.get("Location")
+    def search_text(self):
+        print(self.Title,self.Location)
         self.browser_run()
-        self.input_fields(find=findtext)
+        self.input_fields(find=self.Title + " in " + self.Location)
         self.input_fields_post()
         self.scroll()
+        self.excel_title()
         self.get_link()
         time.sleep(3)
         self.get_data()
@@ -73,32 +87,28 @@ class GoogleMaps:
         print(kwargs.get("heading"), ":", kwargs.get("value"))
 
     def maps_data_range(self):
-        for r in range(2, 15): #130
+        for r in range(2, 130): #130
             print(r)
 
-            driver.get(ws.cell(row=r, column=1).value)
-            name = self.element(heading="Name", by=By.TAG_NAME, value="h1")
-            address = self.element(heading="Address", by=By.CLASS_NAME, value="Io6YTe")
-            website = self.element(heading="Website", by=By.CLASS_NAME, value="ITvuef")
-            phone = self.get_phone()
+            if ws.cell(row=r, column=1).value:
+                driver.get(ws.cell(row=r, column=1).value)
+                name = self.element(heading="Name", by=By.TAG_NAME, value="h1")
+                address = self.element(heading="Address", by=By.CLASS_NAME, value="Io6YTe")
+                website = self.element(heading="Website", by=By.CLASS_NAME, value="ITvuef")
+                phone = self.get_phone()
 
-            print("Phone :", phone)
+                print("Phone :", phone)
 
-            ws.cell(row=r, column=2).value = name
-            ws.cell(row=r, column=3).value = address
-            ws.cell(row=r, column=4).value = website
-            ws.cell(row=r, column=5).value = phone
+                ws.cell(row=r, column=2).value = name
+                ws.cell(row=r, column=3).value = address
+                ws.cell(row=r, column=4).value = website
+                ws.cell(row=r, column=5).value = phone
 
-    def save_excel_details(self):
-        wb.save(location_save + "\data_details " + date + extension)
 
     def get_data(self):
-        print(location_save + "\data " + date + extension)
-        lb = load_workbook(location_save + "\data " + date + extension)
-        ls = lb.active
-        self.browser_run()
+        print(location_save[:-1] +  self.Title + " in " + self.Location  +" data " + date + extension)
         self.maps_data_range()
-        self.save_excel(title="\data_details ")
+        self.save_excel(title=self.Title + " in " + self.Location  +" data_details ")
 
 
 

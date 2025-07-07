@@ -40,10 +40,13 @@ class GoogleMaps:
         time.sleep(3)
 
     def scroll(self):
-        for r in range(1, 30):
+        for r in range(1, 10):
             print(r)
             self.Driver.find_element(By.CLASS_NAME, "hfpxzc").send_keys(Keys.PAGE_DOWN)
             time.sleep(2)
+
+    def excel_link_title(self):
+        ws.cell(row=1,column=1).value = "Link"
 
     def excel_title(self):
         ws.cell(row=1,column=1).value = "Link"
@@ -69,16 +72,17 @@ class GoogleMaps:
         self.input_fields(find=self.Title + " in " + self.Location)
         self.input_fields_post()
         self.scroll()
-        self.excel_title()
+        self.excel_link_title()
         self.get_link()
         time.sleep(3)
         self.get_data()
 
     def get_phone(self):
-        for ph in self.Driver.find_elements(By.TAG_NAME, "button"):
-            if len(ph.text) == 12:
-                return ph.text
-
+        try:
+            ph = self.Driver.find_element(By.XPATH, '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]/div[6]/button/div/div[2]/div[1]')
+            return ph.text
+        except:
+            pass
     def element(self,**kwargs):
         try:
             name = self.Driver.find_element(kwargs.get("by"), kwargs.get("value")).text
@@ -91,6 +95,7 @@ class GoogleMaps:
         print(kwargs.get("heading"), ":", kwargs.get("value"))
 
     def maps_data_range(self):
+        self.excel_title()
         for r in range(2, 130): #130
             print(r)
 
